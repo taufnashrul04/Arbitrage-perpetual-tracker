@@ -168,7 +168,7 @@ export function PointsCalculator() {
                 }`}
               >
                 {tab.icon}
-                {config.token}
+                {tab.label}
               </button>
             );
           })}

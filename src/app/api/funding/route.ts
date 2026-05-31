@@ -41,7 +41,7 @@ export async function GET() {
         dex: 'Nado',
         ticker: m.ticker,
         mark_price: m.mark_price,
-        funding_rate_1h: m.funding_rate * 3600, // convert per-second to per-hour
+        funding_rate_1h: m.funding_rate, // already per 1h interval from Nado
         volume_24h: 0,
         raw_rate: m.funding_rate,
         interval_seconds: 3600,

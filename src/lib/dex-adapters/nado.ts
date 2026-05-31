@@ -86,14 +86,23 @@ export async function fetchNadoFunding(): Promise<NadoMarket[]> {
       });
     }
 
-    // Optionally fetch oracle prices
+    // Fetch oracle prices for all products
     try {
-      const prodData = await nadoPost({
-        products: { product_id: PERP_IDS[0], limit: 1 },
+      const priceData = await nadoPost({
+        oracle_price: { product_ids: PERP_IDS },
       });
-      // This only returns one product — we'd need to loop
-      // Skip for now, oracle prices from funding rates suffice
-    } catch {}
+      if (priceData?.prices) {
+        for (const p of priceData.prices) {
+          const market = markets.find(m => m.product_id === p.product_id);
+          if (market && p.oracle_price_x18) {
+            market.mark_price = parseInt(p.oracle_price_x18) / 1e18;
+            market.oracle_price = market.mark_price;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[Nado] oracle price fetch error:', err);
+    }
 
     return markets;
   } catch (err) {
