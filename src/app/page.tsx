@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+
 import { RefreshCw, Activity, ArrowUpDown, Zap, TrendingUp, ExternalLink } from 'lucide-react';
 import { FundingTable } from '@/components/FundingTable';
 import { ArbRecommendation } from '@/components/ArbRecommendation';
@@ -232,9 +232,9 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <AnimatePresence mode="wait">
+        <div>
           {tab === 'arb' && (
-            <motion.section key="arb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <section key="arb">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-[#f0b90b]" />
@@ -254,11 +254,11 @@ export default function Home() {
                 Earn the funding rate differential while remaining market-neutral.
               </p>
               <ArbRecommendation opportunities={filteredOpps} loading={loading} />
-            </motion.section>
+            </section>
           )}
 
           {tab === 'funding' && (
-            <motion.section key="funding" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <section key="funding">
               <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <ArrowUpDown className="h-4 w-4 text-[#f0b90b]" />
@@ -285,21 +285,21 @@ export default function Home() {
                 </div>
               </div>
               <FundingTable data={filteredFunding} loading={loading} />
-            </motion.section>
+            </section>
           )}
 
           {tab === 'points' && (
-            <motion.section key="points" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <section key="points">
               <PointsCalculator />
-            </motion.section>
+            </section>
           )}
 
           {tab === 'wallet' && (
-            <motion.section key="wallet" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <section key="wallet">
               <WalletTracker />
-            </motion.section>
+            </section>
           )}
-        </AnimatePresence>
+        </div>
 
         {/* Footer */}
         <footer className="mt-12 border-t border-[#2b3139] pt-6 pb-4">
