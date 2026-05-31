@@ -28,7 +28,7 @@ export async function fetchRISExFunding(): Promise<RISExMarket[]> {
     const markets = json?.data?.markets || [];
 
     return markets
-      .filter((m: any) => m.available && m.visible)
+      .filter((m: any) => m.available && m.visible && !m.display_name?.includes('deprecated'))
       .map((m: any) => ({
         market_id: m.market_id,
         display_name: m.display_name || m.base_asset_symbol,

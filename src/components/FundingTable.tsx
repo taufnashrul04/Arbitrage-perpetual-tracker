@@ -87,7 +87,13 @@ export function FundingTable({ data, loading }: Props) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-mono text-[12px] text-[#eaecef]">
-                    ${row.mark_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                    {row.mark_price > 1000
+                      ? `$${row.mark_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : row.mark_price > 1
+                      ? `$${row.mark_price.toFixed(4)}`
+                      : row.mark_price > 0
+                      ? `$${row.mark_price.toFixed(6)}`
+                      : <span className="text-[#848e9c]/50">--</span>}
                   </TableCell>
                   <TableCell className={`text-right font-mono text-[12px] font-medium ${row.funding_rate_1h > 0 ? 'text-[#f6465d]' : 'text-[#0ecb81]'}`}>
                     {formatRate(row.funding_rate_1h)}
@@ -96,7 +102,15 @@ export function FundingTable({ data, loading }: Props) {
                     {annualized > 100 ? `+${annualized.toFixed(0)}%` : annualized < -100 ? `${annualized.toFixed(0)}%` : `${(annualized).toFixed(2)}%`}
                   </TableCell>
                   <TableCell className="text-right font-mono text-[12px] text-[#848e9c]">
-                    {row.volume_24h > 0 ? `$${(row.volume_24h / 1e6).toFixed(1)}M` : '--'}
+                    {row.dex === 'Nado' ? (
+                      <span className="text-[#848e9c]/50">N/A</span>
+                    ) : row.volume_24h > 1e6 ? (
+                      `$${(row.volume_24h / 1e6).toFixed(1)}M`
+                    ) : row.volume_24h > 0 ? (
+                      `$${(row.volume_24h / 1e3).toFixed(0)}K`
+                    ) : (
+                      <span className="text-[#848e9c]/50">--</span>
+                    )}
                   </TableCell>
                 </TableRow>
               );
