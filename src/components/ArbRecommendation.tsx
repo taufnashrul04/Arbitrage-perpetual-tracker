@@ -47,6 +47,7 @@ export function ArbRecommendation({ opportunities, loading }: Props) {
     dex === 'Variational' ? 'text-[#a78bfa]' :
     dex === 'Nado' ? 'text-[#60a5fa]' :
     dex === 'RISEx' ? 'text-[#34d399]' :
+    dex === 'Hyperliquid' ? 'text-[#38bdf8]' :
     'text-[#fb923c]';
 
   return (

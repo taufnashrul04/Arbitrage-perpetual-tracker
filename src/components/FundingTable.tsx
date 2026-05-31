@@ -81,6 +81,7 @@ export function FundingTable({ data, loading }: Props) {
                       row.dex === 'Variational' ? 'border-[#6b21a8]/30 text-[#a78bfa] bg-[#6b21a8]/10' :
                       row.dex === 'Nado' ? 'border-[#1d4ed8]/30 text-[#60a5fa] bg-[#1d4ed8]/10' :
                       row.dex === 'RISEx' ? 'border-[#059669]/30 text-[#34d399] bg-[#059669]/10' :
+                      row.dex === 'Hyperliquid' ? 'border-[#0ea5e9]/30 text-[#38bdf8] bg-[#0ea5e9]/10' :
                       'border-[#c2410c]/30 text-[#fb923c] bg-[#c2410c]/10'
                     }`}>
                       {row.dex}

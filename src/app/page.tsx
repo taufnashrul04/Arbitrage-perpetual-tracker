@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { RefreshCw, Activity, ArrowUpDown, Zap, Filter, X, TrendingUp, BarChart3, ChevronDown } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-
+import { RefreshCw, Activity, ArrowUpDown, Zap, TrendingUp, ExternalLink } from 'lucide-react';
 import { FundingTable } from '@/components/FundingTable';
 import { ArbRecommendation } from '@/components/ArbRecommendation';
 import { PointsCalculator } from '@/components/PointsCalculator';
@@ -22,7 +19,7 @@ interface FundingData {
 
 interface ApiResponse {
   timestamp: string;
-  dexes: { variational: number; nado: number; risex: number; decibel: number };
+  dexes: Record<string, number>;
   funding: FundingData[];
   opportunities: ArbOpportunity[];
 }
@@ -32,6 +29,7 @@ const DEX_COLORS: Record<string, { bg: string; text: string; border: string; dot
   Nado: { bg: 'bg-[#1d4ed8]/10', text: 'text-[#60a5fa]', border: 'border-[#1d4ed8]/30', dot: 'bg-[#60a5fa]' },
   RISEx: { bg: 'bg-[#059669]/10', text: 'text-[#34d399]', border: 'border-[#059669]/30', dot: 'bg-[#34d399]' },
   Decibel: { bg: 'bg-[#c2410c]/10', text: 'text-[#fb923c]', border: 'border-[#c2410c]/30', dot: 'bg-[#fb923c]' },
+  Hyperliquid: { bg: 'bg-[#0ea5e9]/10', text: 'text-[#38bdf8]', border: 'border-[#0ea5e9]/30', dot: 'bg-[#38bdf8]' },
 };
 
 const DEX_INFO: Record<string, { chain: string; status: string }> = {
@@ -39,17 +37,24 @@ const DEX_INFO: Record<string, { chain: string; status: string }> = {
   Nado: { chain: 'Ink L2', status: 'Live' },
   RISEx: { chain: 'RISE Chain', status: 'Live' },
   Decibel: { chain: 'Aptos', status: 'Live' },
+  Hyperliquid: { chain: 'Hyperliquid L1', status: 'Live' },
 };
+
+const REFERRALS = [
+  { name: 'Variational', url: 'https://omni.variational.io/?ref=OMNISKYPOTS', color: '#a78bfa' },
+  { name: 'Nado', url: 'https://app.nado.xyz/?join=lLVqxQ0', color: '#60a5fa' },
+];
 
 export default function Home() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'arb' | 'funding' | 'points' | 'wallet'>('arb');
-  const [lastUpdate, setLastUpdate] = useState<string>('');
-  const [selectedDexes, setSelectedDexes] = useState<Set<string>>(new Set(['Variational', 'Nado', 'RISEx', 'Decibel']));
-  const [showDexFilter, setShowDexFilter] = useState(false);
-  const [sortBy, setSortBy] = useState<'rate' | 'volume' | 'ticker'>('rate');
+  const [lastUpdate, setLastUpdate] = useState('');
+  const [selectedDexes, setSelectedDexes] = useState<Set<string>>(
+    new Set(['Variational', 'Nado', 'RISEx', 'Decibel', 'Hyperliquid'])
+  );
   const [searchPair, setSearchPair] = useState('');
+  const [sortBy, setSortBy] = useState<'rate' | 'volume' | 'ticker'>('rate');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -111,11 +116,8 @@ export default function Home() {
     });
   };
 
-  const selectAll = () => setSelectedDexes(new Set(availableDexes));
-  const selectNone = () => setSelectedDexes(new Set());
-
   const tabs = [
-    { id: 'arb' as const, label: 'Delta-Neutral Recs', icon: Zap },
+    { id: 'arb' as const, label: 'Delta-Neutral', icon: Zap },
     { id: 'funding' as const, label: 'Funding Rates', icon: ArrowUpDown },
     { id: 'points' as const, label: 'Points Calculator', icon: Activity },
     { id: 'wallet' as const, label: 'Live Wallet', icon: TrendingUp },
@@ -132,7 +134,15 @@ export default function Home() {
                 Funding Rate Arb
               </h1>
               <p className="text-xs text-[#848e9c]">
-                Cross-DEX perpetual funding rate arbitrage
+                Cross-DEX perpetual funding rate arbitrage · Built by{' '}
+                <a
+                  href="https://x.com/0xskypots"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#f0b90b] hover:underline"
+                >
+                  @0xskypots
+                </a>
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -148,10 +158,27 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Referral Links */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] text-[#848e9c]">Join with my ref:</span>
+            {REFERRALS.map((r) => (
+              <a
+                key={r.name}
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 border px-2 py-1 text-[10px] font-mono hover:bg-[#1e2329]"
+                style={{ borderColor: r.color + '40', color: r.color }}
+              >
+                {r.name} <ExternalLink className="h-2.5 w-2.5" />
+              </a>
+            ))}
+          </div>
+
           {/* DEX Status Cards */}
-          <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-5">
             {Object.entries(DEX_INFO).map(([dex, info]) => {
-              const count = data?.dexes?.[dex.toLowerCase() as keyof typeof data.dexes] || 0;
+              const count = data?.dexes?.[dex.toLowerCase()] || 0;
               const colors = DEX_COLORS[dex];
               const isActive = selectedDexes.has(dex);
               return (
@@ -164,7 +191,7 @@ export default function Home() {
                       : 'border-[#2b3139]/50 bg-[#1e2329]/50 opacity-40'
                   }`}
                 >
-                  <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-[#f0b90b]' : 'bg-[#848e9c]'}`} />
+                  <span className={`h-1.5 w-1.5 rounded-full ${isActive ? colors.dot : 'bg-[#848e9c]'}`} />
                   <div className="text-left">
                     <div className="text-xs font-medium text-[#eaecef]">{dex}</div>
                     <div className="text-[10px] text-[#848e9c] font-mono">
@@ -234,7 +261,6 @@ export default function Home() {
                   <h2 className="text-sm font-bold text-[#eaecef]">Funding Rates</h2>
                   <span className="font-mono text-[10px] text-[#848e9c]">{filteredFunding.length} entries</span>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -254,7 +280,6 @@ export default function Home() {
                   </select>
                 </div>
               </div>
-
               <FundingTable data={filteredFunding} loading={loading} />
             </motion.section>
           )}
@@ -273,11 +298,29 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Footer */}
-        <footer className="mt-12 border-t border-[#2b3139] pt-6 text-center text-[10px] text-[#848e9c]">
-          <p>Funding Rate Arb Dashboard · Data refreshed every 60s</p>
-          <p className="mt-0.5 font-mono">
-            Variational (Arbitrum) · Nado (Ink L2) · RISEx (RISE Chain) · Decibel (Aptos)
-          </p>
+        <footer className="mt-12 border-t border-[#2b3139] pt-6 pb-4">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+            <div className="text-center sm:text-left">
+              <p className="text-[10px] text-[#848e9c]">
+                Funding Rate Arb Dashboard · Data refreshed every 60s
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] text-[#848e9c]">
+                Variational · Nado · RISEx · Decibel · Hyperliquid
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://x.com/0xskypots"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 border border-[#2b3139] bg-[#1e2329] px-3 py-1.5 text-[10px] text-[#eaecef] hover:bg-[#2b3139]"
+              >
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                @0xskypots
+              </a>
+              <span className="text-[10px] text-[#848e9c]">Built by Skypots</span>
+            </div>
+          </div>
         </footer>
       </div>
     </main>

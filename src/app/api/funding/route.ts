@@ -6,6 +6,7 @@ import { fetchVariationalFunding, normalizeFundingRate } from '@/lib/dex-adapter
 import { fetchNadoFunding } from '@/lib/dex-adapters/nado';
 import { fetchRISExFunding, normalizeRISExFunding } from '@/lib/dex-adapters/risex';
 import { fetchDecibelFunding } from '@/lib/dex-adapters/decibel';
+import { fetchHyperliquidFunding } from '@/lib/dex-adapters/hyperliquid';
 import { findArbOpportunities, type FundingData } from '@/lib/arb-engine';
 
 export const dynamic = 'force-dynamic';
@@ -13,11 +14,12 @@ export const revalidate = 60;
 
 export async function GET() {
   try {
-    const [variational, nado, risex, decibel] = await Promise.all([
+    const [variational, nado, risex, decibel, hyperliquid] = await Promise.all([
       fetchVariationalFunding(),
       fetchNadoFunding(),
       fetchRISExFunding(),
       fetchDecibelFunding(),
+      fetchHyperliquidFunding(),
     ]);
 
     const fundingData: FundingData[] = [];
@@ -70,6 +72,18 @@ export async function GET() {
       });
     }
 
+    for (const m of hyperliquid) {
+      fundingData.push({
+        dex: 'Hyperliquid',
+        ticker: m.name,
+        mark_price: Number(m.mark_price),
+        funding_rate_1h: Number(m.funding_rate),
+        volume_24h: Number(m.volume_24h),
+        raw_rate: m.funding_rate,
+        interval_seconds: 3600,
+      });
+    }
+
     const opportunities = findArbOpportunities(fundingData);
 
     return NextResponse.json({
@@ -79,6 +93,7 @@ export async function GET() {
         nado: nado.length,
         risex: risex.length,
         decibel: decibel.length,
+        hyperliquid: hyperliquid.length,
       },
       funding: fundingData,
       opportunities,
