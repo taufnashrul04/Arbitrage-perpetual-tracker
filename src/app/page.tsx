@@ -7,6 +7,7 @@ import { FundingTable } from '@/components/FundingTable';
 import { ArbRecommendation } from '@/components/ArbRecommendation';
 import { PointsCalculator } from '@/components/PointsCalculator';
 import { WalletTracker } from '@/components/WalletTracker';
+import { LiveBanner } from '@/components/LiveBanner';
 import { type ArbOpportunity } from '@/lib/arb-engine';
 
 interface FundingData {
@@ -41,8 +42,8 @@ const DEX_INFO: Record<string, { chain: string; status: string }> = {
 };
 
 const REFERRALS = [
-  { name: 'Variational', url: 'https://omni.variational.io/?ref=OMNISKYPOTS', color: '#a78bfa' },
-  { name: 'Nado', url: 'https://app.nado.xyz/?join=lLVqxQ0', color: '#60a5fa' },
+  { name: 'Variational', url: 'https://omni.variational.io/?ref=OMNISKYPOTS', color: '#a78bfa', benefit: '12% pts booster + Bronze tier' },
+  { name: 'Nado', url: 'https://app.nado.xyz/?join=lLVqxQ0', color: '#60a5fa', benefit: 'Join with ref' },
 ];
 
 export default function Home() {
@@ -125,6 +126,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#0b0e11] text-[#eaecef]">
+      {/* Live Ticker Banner */}
+      <LiveBanner />
+
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
@@ -170,7 +174,7 @@ export default function Home() {
                 className="flex items-center gap-1 border px-2 py-1 text-[10px] font-mono hover:bg-[#1e2329]"
                 style={{ borderColor: r.color + '40', color: r.color }}
               >
-                {r.name} <ExternalLink className="h-2.5 w-2.5" />
+                {r.name} <span className="text-[#848e9c]">· {r.benefit}</span> <ExternalLink className="h-2.5 w-2.5" />
               </a>
             ))}
           </div>
